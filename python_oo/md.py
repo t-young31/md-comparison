@@ -1,11 +1,10 @@
 """
-Object orintated (OO) Python implementation
+Object orientated (OO) Python implementation
 """
 from math import sqrt
 
 
 class _3DVector:
-    """3D vector. Initialised as the zero vector"""
 
     def __init__(self,
                  x: float = 0.0,
@@ -49,9 +48,10 @@ class _3DVector:
         self._x += other.x
         self._y += other.y
         self._z += other.z
+
         return self
 
-    def __add__(self, other: '_3DVector'):
+    def __add__(self, other: '_3DVector') -> '_3DVector':
         """Addition of another vector to this one"""
         x0, y0, z0 = self._x, self._y, self._z
         x1, y1, z1 = other.x, other.y, other.z
@@ -61,6 +61,7 @@ class _3DVector:
     def __mul__(self, other: float) -> '_3DVector':
         """Multiply this vector by a scalar"""
         x, y, z = self._x, self._y, self._z
+
         return self.__class__(x=other*x, y=other*y, z=other*z)
 
     def __repr__(self):
@@ -83,10 +84,6 @@ class Acceleration(_3DVector):
     """Acceleration vector: dv/dt"""
 
 
-class Mass(float):
-    """Mass (weight)"""
-
-
 class _PostiveFloat(float):
 
     def __new__(cls, value):
@@ -94,6 +91,10 @@ class _PostiveFloat(float):
             raise ValueError(f'{cls.__name__} must be positive. Had: {value}')
 
         return float.__new__(cls, value)
+
+
+class Mass(_PostiveFloat):
+    """Mass (weight)"""
 
 
 class Timestep(_PostiveFloat):
@@ -162,21 +163,29 @@ class Particle:
 
 
 class PairwisePotential:
-    """Potential"""
 
     def force(self, particle_i: Particle, particle_j: Particle) -> Force:
         raise NotImplementedError
 
 
 class LennardJones(PairwisePotential):
+    """
+    Lennard Jones potential, defined by the energy function:
+
+         E = Σ  4ε ((σ/r_ij)^12 - (σ/r_ij)^6)
+            ij
+
+    where i, j enumerate over all particles.
+    """
 
     def __init__(self,
-                 sigma: float,
+                 sigma:   float,
                  epsilon: float):
+
         self.sigma = sigma
         self.epsilon = epsilon
 
-        # Required
+        # Required factors for the gradient, evaluated once.
         self._f = [epsilon/2.0, 12 * sigma**12, -6 * sigma**6]
 
     def force(self,
@@ -193,7 +202,7 @@ class LennardJones(PairwisePotential):
         dz = particle_i.position.z - particle_j.position.z
         r = sqrt(dx * dx + dy * dy + dz * dz)
 
-        const = self._f[0] * (self._f[1] * r**(-14) + self._f[2] * r **(-8))
+        const = self._f[0] * (self._f[1] * r**(-14) + self._f[2] * r**(-8))
 
         return Force(x=const * dx, y=const * dy, z=const * dz)
 
@@ -215,18 +224,7 @@ class Particles(list):
     def calculate_forces(self,
                          potential: PairwisePotential
                          ) -> None:
-        """Calculate the force on each particle according to the energy
-        function
-
-            E = Σ a ((b/r_ij)^12 - (b/r_ij)^6)
-                ij
-
-        where i, j enumerate over all particles.
-
-        -----------------------------------------------------------------------
-        Arguments:
-            potential: Potential defining the interaction between two particles
-        """
+        """Set the force on each particle due to an interaction potential"""
 
         for particle_i in self:
             particle_i.force.zero()
@@ -338,13 +336,13 @@ class Simulation:
                 self.particles.print_xyz_file(filename='trajectory.xyz',
                                               append=True)
 
-            self.update_positions()
+            self._update_positions()
             self.particles.calculate_forces(self._potential)
-            self.update_velocities()
+            self._update_velocities()
 
         return None
 
-    def update_positions(self) -> None:
+    def _update_positions(self) -> None:
         """Update the position of all the particles in the simulation"""
 
         for particle in self.particles:
@@ -352,7 +350,7 @@ class Simulation:
 
         return None
 
-    def update_velocities(self) -> None:
+    def _update_velocities(self) -> None:
         """Update the velocity of all the particles in the simulation"""
 
         for particle in self.particles:
@@ -374,7 +372,6 @@ if __name__ == '__main__':
                             potential=LennardJones(epsilon=100,
                                                    sigma=1.7),
                             n_steps=1000,
-                            timestep=0.01,
-                            print_trajectory=True)
+                            timestep=0.01)
     simulation.run()
-    # simulation.particles.print_xyz_file(filename='final_pos.xyz')
+    simulation.particles.print_xyz_file(filename='final_positions.xyz')
