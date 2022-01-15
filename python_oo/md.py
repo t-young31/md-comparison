@@ -326,7 +326,8 @@ class Simulation:
     def run(self) -> None:
         """Run molecular dynamics"""
 
-        self._clear_trajectory_file()
+        if self._print_trajectory:
+            self._clear_trajectory_file()
 
         self.particles.calculate_forces(self._potential)
 
@@ -371,7 +372,7 @@ if __name__ == '__main__':
     simulation = Simulation(particles=cluster,
                             potential=LennardJones(epsilon=100,
                                                    sigma=1.7),
-                            n_steps=1000,
+                            n_steps=10000,
                             timestep=0.01)
     simulation.run()
     simulation.particles.print_xyz_file(filename='final_positions.xyz')
