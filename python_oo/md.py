@@ -161,6 +161,43 @@ class Particle:
         self.velocity += (self.acceleration + self.prev_acceleration) * (dt / 2.)
 
 
+class PairwisePotential:
+    """Potential"""
+
+    def force(self, particle_i: Particle, particle_j: Particle) -> Force:
+        raise NotImplementedError
+
+
+class LennardJones(PairwisePotential):
+
+    def __init__(self,
+                 sigma: float,
+                 epsilon: float):
+        self.sigma = sigma
+        self.epsilon = epsilon
+
+        # Required
+        self._f = [epsilon/2.0, 12 * sigma**12, -6 * sigma**6]
+
+    def force(self,
+              particle_i: Particle,
+              particle_j: Particle
+              ) -> Force:
+        """Calculate the force on particle i due to particle j"""
+
+        if id(particle_i) == id(particle_j):  # No self interaction
+            return Force(0.0, 0.0, 0.0)
+
+        dx = particle_i.position.x - particle_j.position.x
+        dy = particle_i.position.y - particle_j.position.y
+        dz = particle_i.position.z - particle_j.position.z
+        r = sqrt(dx * dx + dy * dy + dz * dz)
+
+        const = self._f[0] * (self._f[1] * r**(-14) + self._f[2] * r **(-8))
+
+        return Force(x=const * dx, y=const * dy, z=const * dz)
+
+
 class Particles(list):
 
     def __init__(self,
@@ -175,7 +212,9 @@ class Particles(list):
         self._set_all('position', positions_filename)
         self._set_all('velocity', velocities_filename)
 
-    def calculate_forces(self) -> None:
+    def calculate_forces(self,
+                         potential: PairwisePotential
+                         ) -> None:
         """Calculate the force on each particle according to the energy
         function
 
@@ -183,36 +222,24 @@ class Particles(list):
                 ij
 
         where i, j enumerate over all particles.
+
+        -----------------------------------------------------------------------
+        Arguments:
+            potential: Potential defining the interaction between two particles
         """
-        a = 100.0
-        b = 2.0
 
-        f0, f1, f2 = a/2.0, 12 * b**12, -6 * b**6
-
-        for i, particle_i in enumerate(self):
-
+        for particle_i in self:
             particle_i.force.zero()
 
-            for j, particle_j in enumerate(self):
+            for particle_j in self:
+                particle_i.force += potential.force(particle_i, particle_j)
 
-                if i == j:     # Only consider i != j
-                    continue
-
-                dx = particle_i.position.x - particle_j.position.x
-                dy = particle_i.position.y - particle_j.position.y
-                dz = particle_i.position.z - particle_j.position.z
-                r = sqrt(dx*dx + dy*dy + dz*dz)
-
-                const = f0 * (f1 * r**(-14) + f2 * r**(-8))
-
-                particle_i.force += Force(x=const * dx,
-                                          y=const * dy,
-                                          z=const * dz)
         return None
 
     def print_xyz_file(self,
                        filename: str,
-                       append:   bool = False) -> None:
+                       append:   bool = False
+                       ) -> None:
         """Print an xyz file of the particles"""
 
         with open(filename, 'a' if append else 'w') as xyz_file:
@@ -285,6 +312,7 @@ class Simulation:
 
     def __init__(self,
                  particles:        Particles,
+                 potential:        PairwisePotential,
                  timestep:         float,
                  n_steps:          int,
                  print_trajectory: bool = False):
@@ -292,6 +320,7 @@ class Simulation:
 
         self.particles = particles
 
+        self._potential = potential
         self._timestep = Timestep(timestep)
         self._n_steps = NumberOfSimulationSteps(n_steps)
         self._print_trajectory = bool(print_trajectory)
@@ -301,7 +330,7 @@ class Simulation:
 
         self._clear_trajectory_file()
 
-        self.particles.calculate_forces()
+        self.particles.calculate_forces(self._potential)
 
         for _ in range(self._n_steps):
 
@@ -310,7 +339,7 @@ class Simulation:
                                               append=True)
 
             self.update_positions()
-            self.particles.calculate_forces()
+            self.particles.calculate_forces(self._potential)
             self.update_velocities()
 
         return None
@@ -342,7 +371,10 @@ if __name__ == '__main__':
                         velocities_filename='data/velocities.txt')
 
     simulation = Simulation(particles=cluster,
+                            potential=LennardJones(epsilon=100,
+                                                   sigma=1.7),
                             n_steps=1000,
-                            timestep=0.01)
+                            timestep=0.01,
+                            print_trajectory=True)
     simulation.run()
     # simulation.particles.print_xyz_file(filename='final_pos.xyz')
