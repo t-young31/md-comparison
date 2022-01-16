@@ -69,15 +69,15 @@ class _3DVector:
 
 
 class Position(_3DVector):
-    """Position in 3D space: R"""
+    """Position vector in 3D space: R"""
 
 
 class Velocity(_3DVector):
-    """Velocity in 3D space: dR/dt"""
+    """Velocity vector in 3D space: dR/dt"""
 
 
 class Force(_3DVector):
-    """Force vector: -dE/dx, -dE/dy, -dE/dz"""
+    """Force vector in 3D space: -dE/dx, -dE/dy, -dE/dz"""
 
 
 class Acceleration(_3DVector):
@@ -153,11 +153,11 @@ class Particle:
                          z=self._prev_force.z / self.mass)
         return a
 
-    def update_position(self, dt: float) -> None:
+    def update_position(self, dt: Timestep) -> None:
         """Update the position according to a velocity verlet update"""
         self.position += self.velocity * dt + self.acceleration * dt**2
 
-    def update_velocity(self, dt: float) -> None:
+    def update_velocity(self, dt: Timestep) -> None:
         """Update the position according to a velocity verlet update"""
         self.velocity += (self.acceleration + self.prev_acceleration) * (dt / 2.)
 
@@ -251,6 +251,18 @@ class Particles(list):
 
         return None
 
+    def print_positions(self,
+                        filename: str = 'positions.txt'
+                        ) -> None:
+        """Print the positions to a .txt file"""
+
+        with open(filename, 'w') as pos_file:
+            for particle in self:
+                pos = particle.position
+                print(f'{pos.x:.5f}  {pos.y:.5f}  {pos.z:.5f}', file=pos_file)
+
+        return None
+
     def _set_all(self,
                  attr:     str,
                  filename: str
@@ -311,16 +323,16 @@ class Simulation:
     def __init__(self,
                  particles:        Particles,
                  potential:        PairwisePotential,
-                 timestep:         float,
-                 n_steps:          int,
+                 timestep:         Timestep,
+                 n_steps:          NumberOfSimulationSteps,
                  print_trajectory: bool = False):
         """Construct a simulation from a set of properties"""
 
         self.particles = particles
 
         self._potential = potential
-        self._timestep = Timestep(timestep)
-        self._n_steps = NumberOfSimulationSteps(n_steps)
+        self._timestep = timestep
+        self._n_steps = n_steps
         self._print_trajectory = bool(print_trajectory)
 
     def run(self) -> None:
@@ -372,7 +384,7 @@ if __name__ == '__main__':
     simulation = Simulation(particles=cluster,
                             potential=LennardJones(epsilon=100,
                                                    sigma=1.7),
-                            n_steps=10000,
-                            timestep=0.01)
+                            n_steps=NumberOfSimulationSteps(10000),
+                            timestep=Timestep(0.01))
     simulation.run()
-    simulation.particles.print_xyz_file(filename='final_positions.xyz')
+    simulation.particles.print_positions()
