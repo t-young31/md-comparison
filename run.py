@@ -10,7 +10,7 @@ def impl_dir_names():
             if os.path.isdir(fn) and not (fn == 'data' or fn.startswith('.'))]
 
 
-def runtime(_dir_name) -> float:
+def calculate_runtime(_dir_name) -> float:
     """Run the process and time the output"""
 
     if not os.path.exists(f'{_dir_name}/run.sh'):
@@ -51,8 +51,8 @@ if __name__ == '__main__':
 
     for name in impl_dir_names():
 
-        time = runtime(name)
+        runtime = calculate_runtime(name)
         validated = validate(name, data_filename='positions.txt')
         os.remove('positions.txt')
 
-        print(f'{name:<15s}{time:<15.5f}{"✓" if validated else "✗":<15s}')
+        print(f'{name:<15s}{runtime:<15.5f}{"✓" if validated else "✗":<15s}')
