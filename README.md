@@ -23,12 +23,20 @@ velocity verlet algorithm to update the positions and velocities (3) Repeating
 ## Install 
 
 ```bash
-git clone https://github.com/t-young31/mc-comparison.git && cd mc-comparison
-make
+git clone https://github.com/t-young31/mc-comparison.git && cd mc-comparison && make
 ```
 
 ## Usage
 
 ```bash
 python run.py
+```
+
+## Results
+
+```
+Code          time / s     Validated
+------------------------------------
+python_oo      2.68716        ✓              
+python_f       1.74323        ✓  
 ```

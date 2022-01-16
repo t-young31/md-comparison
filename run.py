@@ -38,7 +38,7 @@ def validate(_dir_name, data_filename) -> bool:
                  17.54872, 16.52326,  -13.17264,
                  16.65030, 13.69364,  -11.87061,
                  17.99891, 14.77742,  -12.59559,]
-r
+
     observed_data = []
     for line in open(data_filename, 'r'):
         for item in line.split():
