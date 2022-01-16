@@ -1,4 +1,4 @@
-.SILENT: conda_install  conda_env
+.SILENT: conda_install conda_env create_conda_env
 
 all: python_oo
 	@echo "Built successfully!"
@@ -19,7 +19,6 @@ endif
 
 create_conda_env:
 	conda create --name md_comparison python=3.9 cmake --yes &> /dev/null
-	echo "Created environment"
 
 ifeq (,$(shell which conda))  # Does the conda command not exist?
 conda_install: install_conda
