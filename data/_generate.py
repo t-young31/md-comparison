@@ -10,7 +10,7 @@ def modified_distance_matrix(_positions):
 if __name__ == '__main__':
 
     n_particles = 12
-    min_sep = 1.0   # reduced units
+    min_sep = 2.0  # reduced units
 
     while True:
         pos = np.random.uniform(low=-4, high=4, size=(n_particles, 3))

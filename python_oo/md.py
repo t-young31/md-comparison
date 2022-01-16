@@ -227,10 +227,12 @@ class Particles(list):
         """Set the force on each particle due to an interaction potential"""
 
         for particle_i in self:
-            particle_i.force.zero()
+            force = Force()
 
             for particle_j in self:
-                particle_i.force += potential.force(particle_i, particle_j)
+                force += potential.force(particle_i, particle_j)
+
+            particle_i.force = force
 
         return None
 

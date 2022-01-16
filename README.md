@@ -30,5 +30,5 @@ make
 ## Usage
 
 ```bash
-./run.sh
+python run.py
 ```
