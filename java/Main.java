@@ -3,8 +3,8 @@ import java.io.File;
 import java.io.FileWriter; 
 import java.util.Scanner;
 import java.util.ArrayList;
-import java.io.FileNotFoundException;
-import java.io.IOException;
+import java.io.*;
+import java.lang.*;
 
 
 class _3DVector {
@@ -53,7 +53,6 @@ class Force extends _3DVector{
     }   
 
 }
-
 
 
 class Acceleration extends _3DVector{
@@ -244,6 +243,31 @@ class LJPotential{
         this.f[2] = -6 * Math.pow(sigma, 6);
 
     }    
+
+    public Force force(Particle particle_i,
+                       Particle particle_j){
+
+        // Calculate the force on particle i due to particle j
+        
+        if (System.identityHashCode(particle_i) 
+            == System.identityHashCode(particle_j)){
+            // Particles do not interact with themselves 
+            return new Force(0.0, 0.0, 0.0);
+        }
+
+        var pos_i = particle_i.position;
+        var pos_j = particle_j.position;
+
+        double dx = pos_i.x - pos_j.x;
+        double dy = pos_i.y - pos_j.y;
+        double dz = pos_i.z - pos_j.z;
+
+        double r = Math.sqrt(dx*dx + dy*dy + dz*dz);
+
+        double c = this.f[0] * (this.f[1]*Math.pow(r, -14) + this.f[2]*Math.pow(r, -8));
+        
+        return new Force(c*dx, c*dy, c*dz); 
+    }
 
 }
 
