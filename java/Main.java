@@ -1,8 +1,10 @@
 import java.lang.Math;
 import java.io.File; 
+import java.io.FileWriter; 
 import java.util.Scanner;
 import java.util.ArrayList;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 
 
 class _3DVector {
@@ -178,6 +180,29 @@ class Particles extends ArrayList<Particle> {
         }
     }
 
+
+    public void print_positions(){
+        // Print a .txt file of the positions of each particle, in the
+        // same format as the files read to initialise the particles
+        
+        try{        
+            var file = new FileWriter("positions.txt");
+            
+            for (int i = 0; i < this.size(); i++){
+                var pos = this.get(i).position;
+
+                file.write(String.format("%f  %f  %f\n", pos.x, pos.y, pos.z));
+            }
+    
+            file.close();
+
+        } catch (IOException e) {
+            System.out.println("An error occurred saving the positions file");
+            e.printStackTrace();
+        }
+
+    }
+
 }
 
 
@@ -210,7 +235,7 @@ class TimeStep {
 
 class LJPotential{
 
-    private double[] f;
+    private double[] f = {0.0, 0.0, 0.0};
 
     public LJPotential(double epsilon, double sigma){
 
@@ -219,6 +244,39 @@ class LJPotential{
         this.f[2] = -6 * Math.pow(sigma, 6);
 
     }    
+
+}
+
+
+class Simulation{
+
+
+    Particles particles;
+    LJPotential potential;
+    NumberOfTimeSteps n_steps;
+    TimeStep dt;
+
+
+    public Simulation(Particles particles,
+                      LJPotential potential,
+                      NumberOfTimeSteps n_steps,
+                      TimeStep dt){
+        // Constructor for a simulation
+
+        this.particles = particles;
+        this.potential = potential;
+        this.n_steps = n_steps;
+        this.dt = dt;
+
+   
+    }                    
+
+    public void run(){
+        // Run the molecular dynamics simulation using
+        // a velocity verlet update on positions and velocities
+        // of each particle due the to the intermolecular force
+
+    }
 
 }
 
