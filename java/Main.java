@@ -50,8 +50,14 @@ class Force extends _3DVector{
    
     public Force copy(){
         return new Force(this.x, this.y, this.z);
-    }   
+    }
 
+    public void zero(){
+        // Zero the elements of the force
+        this.x = 0.0;
+        this.y = 0.0;
+        this.z = 0.0;
+    }
 }
 
 
@@ -112,6 +118,47 @@ class Particle {
 
 }
 
+
+class LJPotential{
+
+    private double[] f = {0.0, 0.0, 0.0};
+
+    public LJPotential(double epsilon, double sigma){
+
+        this.f[0] = epsilon / 2.0;
+        this.f[1] = 12 * Math.pow(sigma, 12);
+        this.f[2] = -6 * Math.pow(sigma, 6);
+
+    }    
+
+    public void add_force(Particle particle_i,
+                          Particle particle_j){
+
+        // Add the force on particle i due to particle j
+        
+        if (System.identityHashCode(particle_i) 
+            == System.identityHashCode(particle_j)){
+            // Particles do not interact with themselves 
+            return;
+        }
+
+        var pos_i = particle_i.position;
+        var pos_j = particle_j.position;
+
+        double dx = pos_i.x - pos_j.x;
+        double dy = pos_i.y - pos_j.y;
+        double dz = pos_i.z - pos_j.z;
+
+        double r = Math.sqrt(dx*dx + dy*dy + dz*dz);
+
+        double c = this.f[0] * (this.f[1]*Math.pow(r, -14) + this.f[2]*Math.pow(r, -8));
+        
+        particle_i.force.x += c*dx;
+        particle_i.force.y += c*dy;
+        particle_i.force.z += c*dz; 
+    }
+
+}
 
 
 class Particles extends ArrayList<Particle> {
@@ -187,8 +234,8 @@ class Particles extends ArrayList<Particle> {
         try{        
             var file = new FileWriter("positions.txt");
             
-            for (int i = 0; i < this.size(); i++){
-                var pos = this.get(i).position;
+            for (var particle : this){
+                var pos = particle.position;
 
                 file.write(String.format("%f  %f  %f\n", pos.x, pos.y, pos.z));
             }
@@ -200,6 +247,53 @@ class Particles extends ArrayList<Particle> {
             e.printStackTrace();
         }
 
+    }
+
+
+    public void calculate_forces(LJPotential potential){
+        // Calculate the force on each particle due to a potential
+        
+        for (var particle_i : this){
+          
+            particle_i.prev_force = particle_i.force;
+            particle_i.force.zero();
+
+            for (var particle_j : this){
+                potential.add_force(particle_i, particle_j);
+            }
+        }
+    }
+
+   
+    public void update_positions(double dt){
+        // Use a velocity verlet update on the position of each particle
+        
+        for (var particle : this){
+
+            var v = particle.velocity;        
+            var a = particle.acceleration();
+
+            particle.position.x += v.x * dt + a.x * dt * dt; 
+            particle.position.y += v.y * dt + a.y * dt * dt;
+            particle.position.z += v.z * dt + a.z * dt * dt;
+        }
+    
+    }
+
+    
+    public void update_velocities(double dt){
+        // Use a velocity verlet update on the velocities of each particle
+
+        for (var particle : this){
+
+            var a_prev = particle.prev_acceleration();
+            var a = particle.acceleration();
+
+            particle.velocity.x += (a.x + a_prev.x) * dt / 2.0; 
+            particle.velocity.y += (a.y + a_prev.y) * dt / 2.0;
+            particle.velocity.z += (a.z + a_prev.z) * dt / 2.0;
+
+        } 
     }
 
 }
@@ -232,67 +326,28 @@ class TimeStep {
 } 
 
 
-class LJPotential{
-
-    private double[] f = {0.0, 0.0, 0.0};
-
-    public LJPotential(double epsilon, double sigma){
-
-        this.f[0] = epsilon / 2.0;
-        this.f[1] = 12 * Math.pow(sigma, 12);
-        this.f[2] = -6 * Math.pow(sigma, 6);
-
-    }    
-
-    public Force force(Particle particle_i,
-                       Particle particle_j){
-
-        // Calculate the force on particle i due to particle j
-        
-        if (System.identityHashCode(particle_i) 
-            == System.identityHashCode(particle_j)){
-            // Particles do not interact with themselves 
-            return new Force(0.0, 0.0, 0.0);
-        }
-
-        var pos_i = particle_i.position;
-        var pos_j = particle_j.position;
-
-        double dx = pos_i.x - pos_j.x;
-        double dy = pos_i.y - pos_j.y;
-        double dz = pos_i.z - pos_j.z;
-
-        double r = Math.sqrt(dx*dx + dy*dy + dz*dz);
-
-        double c = this.f[0] * (this.f[1]*Math.pow(r, -14) + this.f[2]*Math.pow(r, -8));
-        
-        return new Force(c*dx, c*dy, c*dz); 
-    }
-
-}
 
 
 class Simulation{
 
 
-    Particles particles;
+    public Particles particles;
     LJPotential potential;
-    NumberOfTimeSteps n_steps;
-    TimeStep dt;
+    int n_steps;
+    double dt;
 
 
     public Simulation(Particles particles,
                       LJPotential potential,
                       NumberOfTimeSteps n_steps,
-                      TimeStep dt){
+                      TimeStep timestep){
         // Constructor for a simulation
 
         this.particles = particles;
         this.potential = potential;
-        this.n_steps = n_steps;
-        this.dt = dt;
-
-   
+        this.n_steps = n_steps.value;
+        this.dt = timestep.value;
+ 
     }                    
 
     public void run(){
@@ -300,6 +355,14 @@ class Simulation{
         // a velocity verlet update on positions and velocities
         // of each particle due the to the intermolecular force
 
+        this.particles.calculate_forces(this.potential); 
+
+        for (int step = 0; step < this.n_steps; step++){
+            
+            this.particles.update_positions(this.dt);
+            this.particles.calculate_forces(this.potential);
+            this.particles.update_velocities(this.dt);
+        }
     }
 
 }

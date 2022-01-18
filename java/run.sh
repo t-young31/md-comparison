@@ -1,4 +1,5 @@
 #!/bin/bash
 
 cd java
-java Main 
+java Main
+mv positions.txt ../positions.txt
