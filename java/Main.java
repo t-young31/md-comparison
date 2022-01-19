@@ -237,7 +237,7 @@ class Particles extends ArrayList<Particle> {
             for (var particle : this){
                 var pos = particle.position;
 
-                file.write(String.format("%f  %f  %f\n", pos.x, pos.y, pos.z));
+                file.write(String.format("%.6f  %.6f  %.6f\n", pos.x, pos.y, pos.z));
             }
     
             file.close();
@@ -255,7 +255,7 @@ class Particles extends ArrayList<Particle> {
         
         for (var particle_i : this){
           
-            particle_i.prev_force = particle_i.force;
+            particle_i.prev_force = particle_i.force.copy();
             particle_i.force.zero();
 
             for (var particle_j : this){
