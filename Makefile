@@ -1,6 +1,6 @@
-.SILENT: conda_install conda_env create_conda_env
+.SILENT: conda_install conda_env create_conda_env java java_compiler jdk_install
 
-all: python_oo
+all: python_oo python_f java
 	@echo "Built successfully!"
 
 # --------------------------- Python targets ----------------------------------
@@ -11,31 +11,59 @@ CONDA_ENV_DIR := $(shell conda info --base)/envs/md_comparison
 
 ifeq (,$(wildcard $(CONDA_ENV_DIR)))   # Does the environment not exist?
 conda_env: conda_install create_conda_env
-	echo "conda env        ...created"
+	echo "conda env       ... created"
 else
 conda_env:
-	echo "conda env        ...present"
+	echo "conda env       ... present"
 endif
 
 create_conda_env:
 	conda create --name md_comparison python=3.9 cmake --yes &> /dev/null
 
-ifeq (,$(shell which conda))  # Does the conda command not exist?
+ifeq (,$(shell which conda 2> /dev/null))  # Does the conda command not exist?
 conda_install: install_conda
-	echo "conda           ...installed"
+	echo "conda           ... installed"
 else
 conda_install:
-	echo "conda           ...found"
+	echo "conda           ... present"
 endif
 
 install_conda:
-	echo "Installing conda..."
+	echo "Installing conda... "
 	wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh -q
-	bash miniconda.sh -b -p "$HOME/miniconda"
+	echo "Getting installer... done"
+	mkdir -p "${HOME}/.local/"
+	bash miniconda.sh -b -p "$HOME/.local/miniconda"
 	rm miniconda.sh
-	eval "$("$HOME"/miniconda/bin/conda shell.bash hook)"
+	echo "Installing miniconda to $HOME/.local"
+	eval "$("${HOME}"/miniconda/bin/conda shell.bash hook)"
 	conda init bash
-	echo "                ...done"
+	echo "                 ... done"
+
+# --------------------------- java targets ----------------------------------
+
+JAVA_HOME := ${HOME}/.local/jdk17
+
+java: java_compiler
+	cd java; $(JAVA_HOME)/bin/javac Main.java
+
+
+ifeq (, $(wildcard $(JAVA_HOME)))   # If the java install directory does not exist
+java_compiler: jdk_install
+	echo "java compiler   ... installed"
+else
+java_compiler:
+	echo "java compiler   ... present"
+endif
+
+jdk_install:
+	echo "Installing JDK  ..."
+	wget https://download.oracle.com/java/17/latest/jdk-17_linux-x64_bin.tar.gz -O jdk.tar.gz -q
+	mkdir -p "${HOME}/.local/jdk17"
+	tar zxf jdk.tar.gz --directory "${HOME}/.local/jdk17/"
+	echo "extracting tar  ... done"
+	rm jdk.tar.gz
+	mv ${HOME}/.local/jdk17/jdk*/* ${HOME}/.local/jdk17/ 
 
 # --------------------------- X targets ----------------------------------
 

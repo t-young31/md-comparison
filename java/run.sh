@@ -1,5 +1,5 @@
 #!/bin/bash
 
 cd java
-java Main
+$HOME/.local/jdk17/bin/java Main
 mv positions.txt ../positions.txt

@@ -10,10 +10,11 @@ project but with a focus on styles rather than just pure performance.
 
 The task involves: (1) Reading particle positions and velocities, (2) Using a 
 velocity verlet algorithm to update the positions and velocities (3) Repeating
-(2) for 1000 steps and (4) Writing a file of the final particle positions.
+(2) for 10,000 steps and (4) Writing a file of the final particle positions.
 
 
 ## Requirements
+Only linux is supported
 
 * git
 * make
@@ -37,7 +38,8 @@ python run.py
 ```
 Code          time / s     Validated
 ------------------------------------
-python_f       2.18661        ✓              
-python_oo      3.36886        ✓              
-java           0.16074        ✗      
+python_f       2.18589        ✓              
+python_oo      3.30549        ✓              
+java           0.16595        ✓  
 ```
+
