@@ -1,4 +1,4 @@
-.SILENT: cpp_oo conda_install conda_env create_conda_env java java_compiler jdk_install
+.SILENT: cpp_oo cmake cmake_install conda_install conda_env create_conda_env java java_compiler jdk_install
 
 .PHONY: all cpp_oo   # Always rebuild
 
@@ -22,7 +22,7 @@ conda_env:
 endif
 
 create_conda_env:
-	conda create --name md_comparison python=3.9 cmake --yes &> /dev/null
+	conda create --name md_comparison python=3.9 --yes &> /dev/null
 
 ifeq (,$(shell which conda 2> /dev/null))  # Does the conda command not exist?
 conda_install: install_conda
@@ -71,10 +71,21 @@ jdk_install:
 
 # -------------------------- C++ targets ---------------------------------
 
-cpp_oo:
+cpp_oo: cmake
 	mkdir -p cpp_oo/build
 	cd cpp_oo/build; cmake ..; make
 	cp data/*.txt cpp_oo/build/
 
+ifeq (, $(shell which cmake 2> /dev/null))
+cmake: cmake_install
+	echo "cmake           ... installed"
+else
+cmake:
+	echo "cmake           ... present "
+endif
+
+
+cmake_install: conda_install
+	conda install cmake --yes &> /dev/null
 
 # --------------------------- X targets ----------------------------------
