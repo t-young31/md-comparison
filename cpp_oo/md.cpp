@@ -402,9 +402,8 @@ class Simulation{
 
 int main(){
 
-    // TODO: remove hard coded paths
-    auto cluster = Particles("/Users/tom/repos/md-comparison/data/positions.txt");
-    cluster.set_velocities("/Users/tom/repos/md-comparison/data/velocities.txt");
+    auto cluster = Particles("positions.txt");
+    cluster.set_velocities("velocities.txt");
 
     auto simulation = Simulation(cluster,
                                  LJPotential(100.0, 1.7),
@@ -412,7 +411,7 @@ int main(){
                                  TimeIncrement(0.01));
     simulation.run();
 
-    simulation.particles.print_positions("positions.txt");
+    simulation.particles.print_positions("final_positions.txt");
 
     return 0;
 }

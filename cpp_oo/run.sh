@@ -1,3 +1,5 @@
 #!/bin/bash 
 
-./cpp_oo/build/md
+cd cpp_oo/build
+./md
+mv final_positions.txt ../../positions.txt
