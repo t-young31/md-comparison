@@ -8,7 +8,7 @@
 #include <sstream>
 #include <fstream>
 #include <iomanip>
-#include <iostream>
+#include <cassert>
 #include <stdexcept>
 #include <cmath>
 

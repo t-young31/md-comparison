@@ -74,6 +74,7 @@ jdk_install:
 cpp_oo:
 	mkdir -p cpp_oo/build
 	cd cpp_oo/build; cmake ..; make
+	cp data/*.txt cpp_oo/build/
 
 
 # --------------------------- X targets ----------------------------------
