@@ -1,5 +1,4 @@
 .idea/
 java/*class
 final_positions.xyz
-
-cpp_oo/cmake-build-debug/
+cpp_oo/*build*/

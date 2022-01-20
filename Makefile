@@ -1,7 +1,11 @@
-.SILENT: conda_install conda_env create_conda_env java java_compiler jdk_install
+.SILENT: cpp_oo conda_install conda_env create_conda_env java java_compiler jdk_install
 
-all: python_oo python_f java
+.PHONY: all cpp_oo   # Always rebuild
+
+
+all: python_oo python_f java cpp_oo
 	@echo "Built successfully!"
+
 
 # --------------------------- Python targets ----------------------------------
 python_oo: conda_env
@@ -65,5 +69,11 @@ jdk_install:
 	rm jdk.tar.gz
 	mv ${HOME}/.local/jdk17/jdk*/* ${HOME}/.local/jdk17/ 
 
-# --------------------------- X targets ----------------------------------
+# -------------------------- C++ targets ---------------------------------
 
+cpp_oo:
+	mkdir -p cpp_oo/build
+	cd cpp_oo/build; cmake ..; make
+
+
+# --------------------------- X targets ----------------------------------
