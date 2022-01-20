@@ -38,8 +38,9 @@ python run.py
 ```
 Code          time / s     Validated
 ------------------------------------
-python_f       2.18589        ✓              
-python_oo      3.30549        ✓              
-java           0.16595        ✓  
+python_f       2.17905        ✓              
+python_oo      3.30715        ✓              
+java           0.16135        ✓              
+cpp_oo         0.15845        ✓        
 ```
 
