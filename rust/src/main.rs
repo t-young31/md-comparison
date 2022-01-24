@@ -1,6 +1,7 @@
 use std::fs::File;
 use std::io::{self, BufRead};
 use std::path::Path;
+use std::io::Write;
 
 
 fn read_lines<P>(filename: P) -> io::Result<io::Lines<io::BufReader<File>>>
@@ -25,7 +26,7 @@ fn str_to_doubles(string: &str) -> Vec<f64>{
 
 
 #[derive(Default)]
-pub struct Particle{
+struct Particle{
 
     position:   [f64; 3],
     velocity:   [f64; 3],
@@ -37,7 +38,7 @@ pub struct Particle{
 
 impl Particle{
 
-    pub fn from_position(x: f64, 
+    fn from_position(x: f64, 
                          y: f64, 
                          z: f64) -> Particle{
         // Create a particle from a defined position
@@ -48,7 +49,7 @@ impl Particle{
         particle
     }
 
-    pub fn from_position_vec(vec: Vec<f64>) -> Particle{
+    fn from_position_vec(vec: Vec<f64>) -> Particle{
         // Create a particle from a vector of positions
 
         if vec.len() != 3{
@@ -56,34 +57,42 @@ impl Particle{
                    must be formed of a 3-tuple");
         }
 
-
         Particle::from_position(vec[0], vec[1], vec[2])
     }
+
+    fn position_str(&self) -> String{
+        // String representation of the position
+        format!("{:.5}  {:.5}  {:.5}", 
+                self.position[0],
+                self.position[1],
+                self.position[2])
+    }    
 
 }
 
 
 #[derive(Default)]
-pub struct Particles{
+struct Particles{
 
     vec: Vec<Particle>
 
 }
 
+
 impl Particles{
 
-    pub fn push(&mut self, particle: Particle){
+    fn push(&mut self, particle: Particle){
         // Add a particle to this set
         self.vec.push(particle)
     }
 
-
-    pub fn from_file(filename: &str){
+    fn from_file(filename: &str) -> Particles{
         // Populate the set of particles from a .txt file
         // containing particle positions, with format:
         // x0  y0  z0
         // x1  y1  z1
         // .   .   .
+
         let mut particles : Particles = Default::default();
     
 
@@ -92,20 +101,107 @@ impl Particles{
                 if let Ok(ip) = line {
 
                     let pos = str_to_doubles(&ip);
-                    let p = Particle::from_position_vec(pos); 
-                    particles.push(p);
+                    particles.push(Particle::from_position_vec(pos));
+                }
+            }
+        }
+
+        particles
+    }
+
+    fn set_velocities(&mut self, filename: &str){
+        // Set the velocities of all the particles from 
+        // a .txt file containing x, y, z velocity components
+
+         if let Ok(lines) = read_lines(filename) {
+            for (i, line) in lines.enumerate() {
+                if let Ok(ip) = line {
+
+                    let vel = str_to_doubles(&ip);
+                    self.vec[i].velocity = vel.try_into().unwrap();
                 }
             }
         }
     }
 
+    fn print_positions(&self, filename: &str){
+        // Print the particle positions to a file
+        
+        let path = Path::new(filename);
+
+        let mut file = match File::create(&path) {
+            Err(why) => panic!("couldn't create the file: {}", why),
+            Ok(file) => file,
+        };
+
+        for particle in &self.vec{
+            file.write(particle.position_str().as_bytes());
+        }
+    }
+
+} // Particles
+
+
+#[derive(Default)]
+struct LJPotential{
+
+    f: [f64; 3]
+}
+
+
+impl LJPotential{
+
+    fn from_epsilon_sigma(epsilon: f64, sigma: f64) -> LJPotential{
+        // Create a potential from ε and σ 
+        let mut lj : LJPotential = Default::default();        
+
+        lj.f[0] = epsilon/2.0;
+        lj.f[1] = 12_f64 * sigma.powi(12);
+        lj.f[2] = -6_f64 * sigma.powi(6);
+        
+        lj
+    }
 
 }
 
 
+
+struct Simulation{
+
+    particles: Particles,
+    potential: LJPotential,
+    n_steps:   u32,
+    timestep:  f64
+} 
+
+
+impl Simulation{
+
+
+    fn run(&mut self){
+        // Run the simulation
+
+
+    }
+
+} // Simulation
+
+
+
+
 fn main() {
     
-    let particles = Particles::from_file("positions.txt");
+    let mut cluster = Particles::from_file("positions.txt");
+    cluster.set_velocities("velocities.txt");
 
+    let mut simulation = Simulation{
+                            particles: cluster,
+                            potential: LJPotential::from_epsilon_sigma(100_f64, 1.7_f64),
+                            n_steps:   10000_u32,
+                            timestep:  0.01_f64
+                         };
+
+    simulation.run();
+    simulation.particles.print_positions("positions.txt");
 }
 
