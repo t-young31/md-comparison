@@ -149,13 +149,17 @@ impl Particles{
     fn calculate_forces(&mut self, potential: &LJPotential){
         // Calculate the forces between all the particles
 
-        for particle_i in self.vec.iter_mut() {
+        for i in 0..self.vec.len(){
+            self.vec[i].prev_force = self.vec[i].force.clone();
+            self.vec[i].zero_force();
 
-            particle_i.prev_force = particle_i.force.clone();
-            particle_i.zero_force();
+            for j in 0..self.vec.len(){
+                if i == j {continue};
+                let f = potential.force( &self.vec[i],  &self.vec[j]);
 
-            for particle_j in self.vec.iter() {
-                potential.add_force(particle_i, particle_j);
+                for k in 0..3{
+                    self.vec[i].force[k] += f[k];
+                }
             }
         }
     }
@@ -193,12 +197,10 @@ impl LJPotential{
         lj
     }
 
-    fn add_force(&self,
-                 particle_i: &mut Particle,
-                 particle_j: &Particle){
+    fn force(&self,
+             particle_i: &Particle,
+             particle_j: &Particle) -> Vec<f64>{
         // Add the force on particle i due to particle j
-
-        if particle_i as *const _ == particle_j as *const _ {return;}
 
         let dx = particle_i.position[0] - particle_j.position[0];
         let dy = particle_i.position[1] - particle_j.position[1];
@@ -207,9 +209,7 @@ impl LJPotential{
 
         let c = self.f[0] * (self.f[1] * r.powi(-14) + self.f[2] * r.powi(-8));
 
-        particle_i.force[0] += c * dx;
-        particle_i.force[1] += c * dy;
-        particle_i.force[2] += c * dz;
+        vec![c * dx, c * dy, c* dz]
     }
 
 }
