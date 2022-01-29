@@ -2,4 +2,4 @@
 
 cd java
 $HOME/.local/jdk17/bin/java Main
-mv positions.txt ../positions.txt
+mv positions.txt ../final_positions.txt
