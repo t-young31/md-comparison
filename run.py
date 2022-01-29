@@ -57,7 +57,7 @@ if __name__ == '__main__':
     for name in impl_dir_names():
 
         runtime = calculate_runtime(name)
-        validated = validate(name, data_filename='positions.txt')
-        os.remove('positions.txt')
+        validated = validate(name, data_filename='final_positions.txt')
+        os.remove('final_positions.txt')
 
         print(f'{name:<15s}{runtime:<15.5f}{"✓" if validated else "✗":<15s}')

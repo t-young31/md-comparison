@@ -389,5 +389,4 @@ if __name__ == '__main__':
                             n_steps=NumberOfSimulationSteps(10000),
                             timestep=Timestep(0.01))
     simulation.run()
-    simulation.particles.print_positions()
-
+    simulation.particles.print_positions(filename='final_positions.txt')

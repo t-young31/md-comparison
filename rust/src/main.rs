@@ -28,6 +28,7 @@ fn str_to_doubles(string: &str) -> Vec<f64>{
 #[derive(Default)]
 struct Particle{
 
+    mass:       f64,
     position:   [f64; 3],
     velocity:   [f64; 3],
     force:      [f64; 3],
@@ -39,12 +40,13 @@ struct Particle{
 impl Particle{
 
     fn from_position(x: f64, 
-                         y: f64, 
-                         z: f64) -> Particle{
+                     y: f64,
+                     z: f64) -> Particle{
         // Create a particle from a defined position
 
         let mut particle : Particle = Default::default();
         particle.position = [x, y, z];
+        particle.mass = 1.0;
 
         particle
     }
@@ -62,7 +64,7 @@ impl Particle{
 
     fn position_str(&self) -> String{
         // String representation of the position
-        format!("{:.5}  {:.5}  {:.5}", 
+        format!("{:.5}  {:.5}  {:.5}\n",
                 self.position[0],
                 self.position[1],
                 self.position[2])
@@ -70,9 +72,9 @@ impl Particle{
 
     fn zero_force(&mut self){
         // Zero the force vector
-        for i in 0..=2{
-            self.force[i] = 0.0;
-        }
+        self.force[0] = 0.0;
+        self.force[1] = 0.0;
+        self.force[2] = 0.0;
     }
 
 }
@@ -137,13 +139,14 @@ impl Particles{
         let path = Path::new(filename);
 
         let mut file = match File::create(&path) {
-            Err(why) => panic!("couldn't create the file: {}", why),
+            Err(why) => panic!("Couldn't create the file: {}", why),
             Ok(file) => file,
         };
 
         for particle in &self.vec{
-            file.write(particle.position_str().as_bytes());
+            file.write(particle.position_str().as_bytes()).unwrap();
         }
+        file.write("\n".as_bytes()).unwrap();
     }
 
     fn calculate_forces(&mut self, potential: &LJPotential){
@@ -164,14 +167,29 @@ impl Particles{
         }
     }
 
-    fn update_positions(&mut self){
+    fn update_positions(&mut self, dt: f64){
         // Update the positions of all particles under the current forces
 
+        for particle in self.vec.iter_mut(){
+            for k in 0..=2{
+                let a = particle.force[k] / particle.mass;  // F = ma  -> a = F/m
+                particle.position[k] += (particle.velocity[k] + a * dt) * dt;
+            }
+        }
     }
 
-    fn update_velocities(&mut self){
-        // Update these velocities due to the current and previous positions
+    fn update_velocities(&mut self, dt: f64){
+        // Update these velocities due to the current and previous forces
 
+        for particle in self.vec.iter_mut(){
+            for k in 0..=2{
+
+                let a = particle.force[k] / particle.mass;          // F = ma  -> a = F/m
+                let a_prev = particle.prev_force[k] / particle.mass;
+
+                particle.velocity[k] += (a + a_prev) / 2.0 * dt;
+            }
+        }
     }
 
 } // Particles
@@ -227,15 +245,15 @@ struct Simulation{
 impl Simulation{
 
     fn run(&mut self){
-        // Run the simulation
+        // Run the simulation updating particle positions and velocities
 
         self.particles.calculate_forces(&self.potential);
 
         for _ in 0..self.n_steps {
 
-            self.particles.update_positions();
+            self.particles.update_positions(self.timestep);
             self.particles.calculate_forces(&self.potential);
-            self.particles.update_velocities();
+            self.particles.update_velocities(self.timestep);
         }
     }
 } // Simulation
@@ -246,14 +264,15 @@ fn main() {
     let mut cluster = Particles::from_file("positions.txt");
     cluster.set_velocities("velocities.txt");
 
+
+
     let mut simulation = Simulation{
                             particles: cluster,
                             potential: LJPotential::from_epsilon_sigma(100_f64, 1.7_f64),
-                            n_steps:   10000_u32,
+                            n_steps:   10_000_u32,
                             timestep:  0.01_f64
                          };
 
     simulation.run();
-    simulation.particles.print_positions("positions.txt");
+    simulation.particles.print_positions("final_positions.txt");
 }
-

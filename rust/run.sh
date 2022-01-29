@@ -1,3 +1,3 @@
 #!/bin/bash
 
-./target/debug/md
+rust/target/release/md
