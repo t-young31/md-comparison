@@ -2,6 +2,8 @@
 
 .PHONY: all cpp_oo   # Always rebuild
 
+.ONESHELL:  #Use a single shell for all commands
+
 
 all: python_oo python_f java cpp_oo rust
 	@echo "Built successfully!"
@@ -74,8 +76,10 @@ jdk_install:
 
 cpp_oo: cmake
 	mkdir -p cpp_oo/build
-	cd cpp_oo/build; cmake ..; make
-	cp data/*.txt cpp_oo/build/
+	cd cpp_oo/build
+	cmake ..
+	make
+	cp ../../data/*.txt .
 
 ifeq (, $(shell which cmake 2> /dev/null))
 cmake: cmake_install
@@ -103,10 +107,7 @@ rust_compiler:
 endif
 
 cargo_install:
-	mkdir -p "${HOME}/.local"
-	cd "${HOME}/.local/"
-	wget https://static.rust-lang.org/dist/rust-1.58.1-x86_64-unknown-linux-gnu.tar.gz
-	tar xf rust-1.58.1-x86_64-unknown-linux-gnu.tar.gz -C rust/
-	rm rust-1.58.1-x86_64-unknown-linux-gnu.tar.gz
-	echo "installed cargo to \$HOME/.local/rust/cargo/bin. Please add to \$PATH"
-	exit
+	curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+	source ${HOME}/.cargo/env
+	export PATH = ${HOME}/.cargo/bin:${PATH}
+
