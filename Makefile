@@ -1,14 +1,17 @@
-.SILENT: cpp_oo cmake cmake_install conda_install conda_env create_conda_env java java_compiler jdk_install
+.SILENT: cpp_oo cmake cmake_install conda_install conda_env create_conda_env java java_compiler jdk_install rust rust_compiler cargo_install
 
 .PHONY: all cpp_oo   # Always rebuild
 
+.ONESHELL:  #Use a single shell for all commands
 
-all: python_oo python_f java cpp_oo
+
+all: python_oo python_f java cpp_oo rust
 	@echo "Built successfully!"
 
 
 # --------------------------- Python targets ----------------------------------
 python_oo: conda_env
+
 python_func: conda_env
 
 CONDA_ENV_DIR := $(shell conda info --base)/envs/md_comparison
@@ -49,7 +52,7 @@ install_conda:
 JAVA_HOME := ${HOME}/.local/jdk17
 
 java: java_compiler
-	cd java; $(JAVA_HOME)/bin/javac Main.java
+	cd java; $(JAVA_HOME)/bin/javac Main.java; cp ../data/positions.txt ../data/velocities.txt .
 
 
 ifeq (, $(wildcard $(JAVA_HOME)))   # If the java install directory does not exist
@@ -73,8 +76,10 @@ jdk_install:
 
 cpp_oo: cmake
 	mkdir -p cpp_oo/build
-	cd cpp_oo/build; cmake ..; make
-	cp data/*.txt cpp_oo/build/
+	cd cpp_oo/build
+	cmake ..
+	make
+	cp ../../data/*.txt .
 
 ifeq (, $(shell which cmake 2> /dev/null))
 cmake: cmake_install
@@ -88,4 +93,21 @@ endif
 cmake_install: conda_install
 	conda install cmake --yes &> /dev/null
 
-# --------------------------- X targets ----------------------------------
+# --------------------------- rust targets ----------------------------------
+
+rust: rust_compiler
+	cd rust; cargo build --release; cp ../data/positions.txt ../data/velocities.txt target/release/
+
+ifeq (, $(shell which cargo 2> /dev/null))  # If the cargo command doesn't exist
+rust_compiler: cargo_install
+	echo "cargo           ... installed"
+else
+rust_compiler:
+	echo "cargo           ... present "
+endif
+
+cargo_install:
+	curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+	source ${HOME}/.cargo/env
+	export PATH = ${HOME}/.cargo/bin:${PATH}
+

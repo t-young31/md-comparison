@@ -2,3 +2,4 @@
 java/*class
 final_positions.xyz
 cpp_oo/*build*/
+rust/target/

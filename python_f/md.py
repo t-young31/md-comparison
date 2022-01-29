@@ -194,4 +194,4 @@ if __name__ == '__main__':
            n_steps=10000,
            timestep=0.01)
 
-    print_txt_file(positions, filename='positions.txt')
+    print_txt_file(positions, filename='final_positions.txt')
