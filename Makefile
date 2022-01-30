@@ -76,10 +76,7 @@ jdk_install:
 
 cpp_oo: cmake
 	mkdir -p cpp_oo/build
-	cd cpp_oo/build
-	cmake ..
-	make
-	cp ../../data/*.txt .
+	cd cpp_oo/build; cmake ..; make; cp ../../data/*.txt .
 
 ifeq (, $(shell which cmake 2> /dev/null))
 cmake: cmake_install

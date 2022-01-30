@@ -2,6 +2,13 @@
 A comparison of programming languages and styles for simulating the dynamics of 
 a simple particle cluster.
 
+<img
+  src="_common/simulation.gif"
+  alt="Particle cluster"
+  width="80%"
+  align="center"
+/>
+
 
 ## Introduction
 
@@ -24,7 +31,7 @@ Only linux is supported
 ## Install 
 
 ```bash
-git clone https://github.com/t-young31/mc-comparison.git && cd mc-comparison && make
+git clone https://github.com/t-young31/md-comparison.git && cd md-comparison && make
 ```
 
 ## Usage
@@ -34,6 +41,7 @@ python run.py
 ```
 
 ## Results
+Intel i9-7900X @ 3.30GHz
 
 ```
 Code          time / s     Validated
