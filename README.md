@@ -2,13 +2,9 @@
 A comparison of programming languages and styles for simulating the dynamics of 
 a simple particle cluster.
 
-<img
-  src="_common/simulation.gif"
-  alt="Particle cluster"
-  width="80%"
-  align="center"
-/>
-
+<p align="center">
+  <img src="_common/simulation.gif" alt="Particle cluster" width="400">
+</p>
 
 ## Introduction
 
