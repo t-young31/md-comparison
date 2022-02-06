@@ -15,8 +15,11 @@ module md
     end type Particle
 
     !------------------------------------------------
-    type Particles
-        type(Particle), dimension(12) :: list_
+    type, public :: Particles
+        type(Particle), dimension(12), public :: list_
+    contains
+        procedure, public :: set_velocities => pset_velocities
+    
     end type Particles
 
     interface Particles               ! overloaded constructor
@@ -48,6 +51,18 @@ module md
 
         end function new_particles
 
+
+        subroutine pset_velocities(this, filename_)
+            ! Set the velocities for each particle from a
+            ! file containing velocities for each particle
+
+            class(Particles), intent(inout) :: this
+            character(len = 100), intent(in) :: filename_
+
+            !TODO implement
+
+        end subroutine pset_velocities
+
 end module md
 
 
@@ -60,5 +75,8 @@ program run_md
 
     filename_ = "positions.txt"
     particles_ = Particles(position_filename=filename_)
-   
+
+    filename_ = "velocities.txt"
+    call particles_%set_velocities(filename_)
+
 end program
