@@ -5,8 +5,14 @@
 .ONESHELL:  #Use a single shell for all commands
 
 
-all: python_oo python_f cpp_oo rust fortran # java
+all: python_oo python_f cpp_oo rust fortran java
 	@echo "Built successfully!"
+
+
+clean:
+	rm -rf fortran_oo/build
+	rm -rf cpp_oo/build
+	rm -rf rust/target
 
 
 # --------------------------- Python targets ----------------------------------
@@ -95,7 +101,7 @@ cmake_install: conda_install
 
 rust: rust_compiler
 	rm -rf rust/target/release/
-	mkdir rust/target/release/
+	mkdir -p rust/target/release/
 	cp data/positions.txt rust/target/release/
 	cp data/velocities.txt rust/target/release/
 	cd rust; cargo build --release
