@@ -1,11 +1,11 @@
-.SILENT: cpp_oo cmake cmake_install conda_install conda_env create_conda_env java java_compiler jdk_install rust rust_compiler cargo_install
+.SILENT: cpp_oo cmake cmake_install conda_install conda_env create_conda_env java java_compiler jdk_install rust rust_compiler cargo_install fortran fortran_compiler gfortran_install
 
 .PHONY: all cpp_oo   # Always rebuild
 
 .ONESHELL:  #Use a single shell for all commands
 
 
-all: python_oo python_f java cpp_oo rust
+all: python_oo python_f cpp_oo rust fortran # java
 	@echo "Built successfully!"
 
 
@@ -76,7 +76,8 @@ jdk_install:
 
 cpp_oo: cmake
 	mkdir -p cpp_oo/build
-	cd cpp_oo/build; cmake ..; make; cp ../../data/*.txt .
+	cp data/vel*.txt data/pos*.txt cpp_oo/build
+	cd cpp_oo/build; cmake ..; make
 
 ifeq (, $(shell which cmake 2> /dev/null))
 cmake: cmake_install
@@ -93,7 +94,11 @@ cmake_install: conda_install
 # --------------------------- rust targets ----------------------------------
 
 rust: rust_compiler
-	cd rust; cargo build --release; cp ../data/positions.txt ../data/velocities.txt target/release/
+	rm -rf rust/target/release/
+	mkdir rust/target/release/
+	cp data/positions.txt rust/target/release/
+	cp data/velocities.txt rust/target/release/
+	cd rust; cargo build --release
 
 ifeq (, $(shell which cargo 2> /dev/null))  # If the cargo command doesn't exist
 rust_compiler: cargo_install
@@ -107,4 +112,26 @@ cargo_install:
 	curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 	source ${HOME}/.cargo/env
 	export PATH = ${HOME}/.cargo/bin:${PATH}
+
+
+# --------------------------- Fortran targets ------------------------------
+fortran: fortran_compiler
+	rm -rf fortran_oo/build
+	mkdir -p fortran_oo/build
+	cp data/positions.txt fortran_oo/build/
+	cp data/velocities.txt fortran_oo/build/
+	cd fortran_oo/build; gfortran -O3 ../md.f90 -o md -std=f2008 -Wextra -Wall
+	echo "Fortran target made!"
+
+
+ifeq (, $(shell which gfortran 2> /dev/null))   # If a GNU fortran compiler doesn't exist 
+fortran_compiler: gfortran_install
+	echo "gfortran        ... installed"
+else
+fortran_compiler:
+	echo "gfortran        ... present"
+endif
+
+gfortran_install:
+	conda install gfortran --yes
 

@@ -6,8 +6,17 @@ from time import time
 
 def impl_dir_names():
     """Directories in the current working directory"""
-    return [fn for fn in os.listdir(os.getcwd())
-            if os.path.isdir(fn) and not (fn == 'data' or fn.startswith('.'))]
+
+    for item in os.listdir(os.getcwd()):
+        if not os.path.isdir(item):
+            continue
+
+        if any((item.startswith('.'),
+                item.startswith('_'),
+                item == 'data')):
+            continue
+
+        yield item
 
 
 def calculate_runtime(_dir_name) -> float:
@@ -25,6 +34,9 @@ def calculate_runtime(_dir_name) -> float:
 
 def validate(_dir_name, data_filename) -> bool:
     """Is the output data correct? Requires data_filename to exist"""
+
+    if not os.path.exists(data_filename):
+        return False
 
     true_data = [18.01831, 14.40616,  -10.75076,
                  17.73558, 12.99332,  -13.22536,
@@ -58,6 +70,10 @@ if __name__ == '__main__':
 
         runtime = calculate_runtime(name)
         validated = validate(name, data_filename='final_positions.txt')
-        os.remove('final_positions.txt')
+        
+        try:
+            os.remove('final_positions.txt')
+        except IOError:
+            print(f"{name} failed!")
 
         print(f'{name:<15s}{runtime:<15.5f}{"✓" if validated else "✗":<15s}')
