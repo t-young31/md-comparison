@@ -112,6 +112,7 @@ class Vector3D: public array<double, 3>{
             this->at(2) = 0.0;
         }
 
+
         T clone(){return {x(), y(), z()};}
 
         friend ostream &operator<<(std::ostream &os, Vector3D const &vec) {
@@ -137,7 +138,16 @@ class Vector3D: public array<double, 3>{
 };
 
 
-class Position: public Vector3D<Position>{};
+class Position: public Vector3D<Position>{
+
+    public:
+        Position(double x, double y, double z){
+            // Constructor
+            this->at(0) = x;
+            this->at(1) = y;
+            this->at(2) = z;
+        }
+};
 
 
 class Velocity: public Vector3D<Velocity>{
@@ -147,6 +157,13 @@ class Velocity: public Vector3D<Velocity>{
             // r ≈ dr/dt ∆t = v ∆t
             return {x() * dt, y() * dt, z() * dt};
         }
+
+        Velocity(double x, double y, double z){
+            this->at(0) = x;
+            this->at(1) = y;
+            this->at(2) = z;
+        }
+
 };
 
 
@@ -157,6 +174,12 @@ class Acceleration: public Vector3D<Acceleration>{
             // dr/dt ≈ d^2r/dt^2 ∆t = a ∆t
             return {x() * dt, y() * dt, z() * dt};
         }
+
+        Acceleration(double x, double y, double z){
+            this->at(0) = x;
+            this->at(1) = y;
+            this->at(2) = z;
+        }
 };
 
 
@@ -165,6 +188,12 @@ class Force: public Vector3D<Force>{
     public:
         Acceleration operator/(Mass& m) const {
             return {x() / m, y() / m, z() / m};
+        }
+
+        Force(double x, double y, double z){
+            this->at(0) = x;
+            this->at(1) = y;
+            this->at(2) = z;
         }
 };
 
@@ -247,7 +276,7 @@ class LJPotential{
 
     protected:
         // Coefficients used to calculate the gradient
-        array<double, 3> f = {0.0, 0.0, 0.0};
+        array<double, 3> f = { {0.0} };
 
 };
 

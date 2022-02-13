@@ -1,5 +1,5 @@
 .idea/
 java/*class
 final_positions.xyz
-cpp_oo/*build*/
+*/*build*/
 rust/target/
