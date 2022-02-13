@@ -36,18 +36,21 @@ module md
             ! x1  y1  z1
 
             character(len = 100), intent(in) :: position_filename
-            integer :: i
+            integer :: i, io_status 
+            integer :: read_unit = 9
 
-            open(unit = 9, file=position_filename, status="old")
+            open(unit=read_unit, action="read", file=position_filename, status="old", iostat=io_status)
 
+            if (io_status /= 0) stop "Error opening file"
 
             do i = 1,12
-                read(3, *) new_particles%list_(i)%position_(1), &
+                read(read_unit, *) &
+                        new_particles%list_(i)%position_(1), &
                              new_particles%list_(i)%position_(2), &
                                new_particles%list_(i)%position_(3)
             enddo
 
-            close(9) ! Close position_filename
+            close(read_unit) ! Close position_filename
 
         end function new_particles
 
@@ -58,8 +61,20 @@ module md
 
             class(Particles), intent(inout) :: this
             character(len = 100), intent(in) :: filename_
+            integer :: i
+            integer :: read_unit = 9
 
-            !TODO implement
+            open(unit=read_unit, action="read", file=filename_, status="old")
+
+
+            do i = 1,12
+                read(read_unit, *) &
+                        this%list_(i)%velocity_(1), &
+                             this%list_(i)%velocity_(2), &
+                               this%list_(i)%velocity_(3)
+            enddo
+
+            close(read_unit)
 
         end subroutine pset_velocities
 
@@ -70,6 +85,8 @@ program run_md
     use md
     implicit none
 
+    integer i
+
     character(len=100) :: filename_
     type(Particles) :: particles_    
 
@@ -79,4 +96,11 @@ program run_md
     filename_ = "velocities.txt"
     call particles_%set_velocities(filename_)
 
+    
+    ! TODO: Remove
+    do i = 1,12
+        write(*,fmt='(A,ES15.3E3)') " ", particles_%list_(i)%velocity_(1)
+    enddo
+
 end program
+

@@ -1,4 +1,4 @@
-all:
+all: clean
 	mkdir -p build
 	cp ../data/positions.txt build/
 	cp ../data/velocities.txt build/
@@ -6,4 +6,3 @@ all:
 
 clean:
 	rm -r build
-	rm md
