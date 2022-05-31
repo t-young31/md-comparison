@@ -37,18 +37,15 @@ python run.py
 ```
 
 ## Results
-<!---
-Intel i9-7900X @ 3.30GHz
--->
-Intel(R) Xeon(R) Silver 4112 CPU @ 2.60GHz
+Intel(R) Xeon(R) Gold 6140 CPU @ 2.30GHz
 
 ```
 Code          time / s     Validated
 ------------------------------------
-cpp_oo         0.25113        ✓              
-rust           0.00981        ✓              
-java           0.28338        ✓              
-fortran_oo     0.03388        ✓              
-python_oo      4.62274        ✓              
-python_f       3.15416        ✓        
+python_oo      6.53065        ✓      
+python_f       4.24908        ✓     
+java           0.23877        ✓                               
+fortran_oo     0.03028        ✓      
+cpp_oo         0.02636        ✓              
+rust           0.00574        ✓              
 ```
