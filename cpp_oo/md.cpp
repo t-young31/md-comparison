@@ -120,15 +120,14 @@ class Vector3D: public array<double, 3>{
             return os << '(' << vec.x() << ", " << vec.y() << ", " << vec.z() << ')';
         }
 
-        T operator+=(const T& other){
+        T& operator+=(const T& other){
             // Add another position to this one
 
-            // TODO: Work out how to do this without a copy
             this->at(0) += other.x();
             this->at(1) += other.y();
             this->at(2) += other.z();
 
-            return {this->at(0), this->at(1), this->at(2)};
+            return static_cast<T&>(*this);
         }
 
         T operator+(const T& other){
