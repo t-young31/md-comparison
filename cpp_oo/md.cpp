@@ -120,15 +120,14 @@ class Vector3D: public array<double, 3>{
             return os << '(' << vec.x() << ", " << vec.y() << ", " << vec.z() << ')';
         }
 
-        T operator+=(const T& other){
+        T& operator+=(const T& other){
             // Add another position to this one
 
-            // TODO: Work out how to do this without a copy
             this->at(0) += other.x();
             this->at(1) += other.y();
             this->at(2) += other.z();
 
-            return {this->at(0), this->at(1), this->at(2)};
+            return static_cast<T&>(*this);
         }
 
         T operator+(const T& other){
@@ -267,7 +266,12 @@ class LJPotential{
             double dz = particle_i.position.z() - particle_j.position.z();
             double r = sqrt(dx * dx + dy * dy + dz * dz);
 
-            double c = f[0] * (f[1] * pow(r, -14) + f[2] * pow(r, -8));
+            double r_sq = r * r;
+            double r_4 = r_sq * r_sq;
+            double r_8 = r_4 * r_4;
+            double r_14 = r_8 * r_4 * r_sq;
+
+            double c = f[0] * (f[1] / r_14 + f[2] / r_8);
 
             particle_i.force[0] += c * dx;
             particle_i.force[1] += c * dy;
