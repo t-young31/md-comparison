@@ -3,3 +3,6 @@ java/*class
 final_positions.xyz
 */*build*/
 rust/target/
+go/data/
+python*/data/
+_opam

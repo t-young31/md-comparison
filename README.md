@@ -12,22 +12,23 @@ The idea behind this project is similar to the [primes](https://github.com/Plumm
 project but with a focus on styles rather than just pure performance.
 
 The task involves: (1) Reading particle positions and velocities, (2) Using a 
-velocity verlet algorithm to update the positions and velocities (3) Repeating
-(2) for 10,000 steps and (4) Writing a file of the final particle positions.
-
+[velocity verlet](https://en.wikipedia.org/wiki/Verlet_integration) algorithm
+to update the positions and velocities (3) Repeating(2) for 10,000 steps and
+(4) Writing a file of the final particle positions.
 
 ## Requirements
-Only linux is supported
+Only Linux/macOS is supported
 
 * git
 * make
 * wget
 
-
 ## Install 
 
 ```bash
-git clone https://github.com/t-young31/md-comparison.git && cd md-comparison && make
+git clone https://github.com/t-young31/md-comparison.git
+cd md-comparison
+make
 ```
 
 ## Usage
@@ -37,15 +38,16 @@ python run.py
 ```
 
 ## Results
-Intel(R) Xeon(R) Gold 6140 CPU @ 2.30GHz
+M1 Pro Macbook Pro
 
 ```
 Code          time / s     Validated
 ------------------------------------
-python_oo      6.53065        ✓      
-python_f       4.24908        ✓     
-java           0.23877        ✓                               
-fortran_oo     0.03028        ✓      
-cpp_oo         0.02636        ✓              
-rust           0.00574        ✓              
+rust           0.00400        ✓ 
+fortran_oo     0.01241        ✓ 
+go             0.05551        ✓ 
+cpp_oo         0.01441        ✓              
+java           0.27823        ✓   
+python_f       1.86874        ✓            
+python_oo      2.79978        ✓              
 ```
