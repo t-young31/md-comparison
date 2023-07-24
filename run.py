@@ -56,6 +56,8 @@ def validate(_dir_name, data_filename) -> bool:
         for item in line.split():
             observed_data.append(float(item))
 
+    assert len(observed_data) > 0
+
     # TODO: Determine a sensible tolerance on the final positions
     return all(abs(obs_pos - true_pos) < 1E-1
                for obs_pos, true_pos in zip(observed_data, true_data))

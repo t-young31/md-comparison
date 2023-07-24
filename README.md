@@ -43,11 +43,11 @@ M1 Pro Macbook Pro
 ```
 Code          time / s     Validated
 ------------------------------------
-rust           0.00400        ✓ 
-fortran_oo     0.01241        ✓ 
-go             0.05551        ✓ 
-cpp_oo         0.01441        ✓              
-java           0.27823        ✓   
-python_f       1.86874        ✓            
-python_oo      2.79978        ✓              
+rust           0.01082        ✓              
+fortran_oo     0.01306        ✓              
+cpp_oo         0.01516        ✓              
+go             0.05455        ✓              
+java           0.26696        ✓     
+python_f       1.85113        ✓             
+python_oo      2.79232        ✓              
 ```
